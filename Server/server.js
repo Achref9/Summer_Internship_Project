@@ -7,8 +7,8 @@ const port = 5000;
 app.use(cors());
 
 
-const clientID = 'Ov23liQk5Xn3d1IFi9ik'; 
-const clientSecret = '6678c9861e8923459fe3235d674dd948ba281e0e '; 
+const clientID = 'Ov23liQk5Xn3d1IFi9ik'; // Replace with your actual client ID
+const clientSecret = '6678c9861e8923459fe3235d674dd948ba281e0e '; // Replace with your actual client secret
 
 app.get('/login', (req, res) => {
   const redirectUri = 'http://localhost:5000/auth/github/callback';
@@ -48,6 +48,7 @@ app.get('/api/repos', async (req, res) => {
     res.status(500).send('Failed to fetch repositories');
   }
 });
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
