@@ -1,8 +1,10 @@
+// Path: /Project-Manager/Server/server.js
+
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const querystring = require('querystring');
+const fetchRepos = require('./fetchRepos'); // Adjust the path based on your file structure
 
 const app = express();
 const port = 3002;
@@ -10,9 +12,8 @@ const port = 3002;
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(cookieParser());
 
-
 const clientID = 'Ov23liQk5Xn3d1IFi9ik'; // Replace with your actual client ID
-const clientSecret = ' fbe8c391228cc099adeaccc3afd1c248cd64638b'; // Replace with your actual client secret
+const clientSecret = 'fbe8c391228cc099adeaccc3afd1c248cd64638b'; // Replace with your actual client secret
 
 app.get('/login', (req, res) => {
   const redirectUri = 'http://localhost:3002/callback';
@@ -61,8 +62,18 @@ app.get('/repos', async (req, res) => {
     });
     res.json(response.data);
   } catch (err) {
-    console.error('Error fetching repositories:', err);
+    console.error('Error fetching repositories:', err.response ? err.response.data : err);
     res.status(500).send('Failed to fetch repositories');
+  }
+});
+
+app.get('/repositories/:username', async (req, res) => {
+  const username = req.params.username;
+  try {
+    const repositories = await fetchRepos(username);
+    res.json(repositories);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch repositories' });
   }
 });
 
