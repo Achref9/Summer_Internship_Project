@@ -9,8 +9,19 @@ const LoginPage = () => {
 
   return (
     <div className="container">
-      <h2 className="mt-4 mb-4">Login to GitHub</h2>
-      <button className="btn btn-primary" onClick={handleLogin}>Login with GitHub</button>
+      <div className="row justify-content-center mt-5">
+        <div className="col-md-6">
+          <div className="card">
+            <h5 className="card-header">Login to GitHub</h5>
+            <div className="card-body text-center">
+              <p className="card-text">Click below to login with your GitHub account.</p>
+              <button className="btn btn-primary btn-lg" onClick={handleLogin}>
+                Login with GitHub
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
