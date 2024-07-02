@@ -1,14 +1,17 @@
+// Path: /Project-Manager/Client/my-app/src/App.js
+
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Login from './LoginPage';
-import RepoTable from './RepoTable';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import LoginPage from './Components/LoginPage';
+import RepoTable from './Components/RepoTable';
 
 const App = () => {
   return (
     <Router>
       <Switch>
+        <Route exact path="/" component={LoginPage} />
         <Route path="/repos" component={RepoTable} />
-        <Route exact path="/" component={Login} />
+        <Redirect to="/" />
       </Switch>
     </Router>
   );

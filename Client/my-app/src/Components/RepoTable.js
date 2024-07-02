@@ -1,25 +1,20 @@
+// Path: /Project-Manager/Client/my-app/src/components/RepoTable.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const RepoTable = () => {
   const [repos, setRepos] = useState([]);
   const [error, setError] = useState('');
-  const location = useLocation();
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(location.search);
-    const token = queryParams.get('token');
+    fetchRepos();
+  }, []);
 
-    if (token) {
-      fetchRepos(token, 'Achref9'); // Replace 'Achref9' with the username you want to fetch repos for
-    }
-  }, [location]);
-
-  const fetchRepos = async (token, username) => {
+  const fetchRepos = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/repos?token=${token}&username=${username}`);
+      const response = await axios.get('http://localhost:3002/repos', { withCredentials: true });
 
       if (response.status === 200) {
         setRepos(response.data);
@@ -37,7 +32,7 @@ const RepoTable = () => {
 
   return (
     <div className="container">
-      <h2 className="mt-4 mb-4">GitHub Repositories for Achref9</h2>
+      <h2 className="mt-4 mb-4">GitHub Repositories</h2>
       {error && <p className="text-danger">{error}</p>}
       <table className="table table-bordered">
         <thead className="thead-dark">
