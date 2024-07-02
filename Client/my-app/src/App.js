@@ -1,15 +1,15 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Login from './LoginPage';
 import RepoTable from './RepoTable';
 
 const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/repos" element={<RepoTable />} />
-        <Route path="/" element={<Login />} />
-      </Routes>
+      <Switch>
+        <Route path="/repos" component={RepoTable} />
+        <Route exact path="/" component={Login} />
+      </Switch>
     </Router>
   );
 };
