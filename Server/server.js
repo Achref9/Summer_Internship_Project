@@ -1,4 +1,4 @@
-// Path: /Project-Manager/Server/server.js
+
 
 const express = require('express');
 const axios = require('axios');
@@ -75,6 +75,12 @@ app.get('/repositories/:username', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch repositories' });
   }
+});
+
+// Logout route to clear the session cookies
+app.get('/logout', (req, res) => {
+  res.clearCookie('github_token');
+  res.json({ message: 'Logged out successfully' });
 });
 
 app.listen(port, () => {
