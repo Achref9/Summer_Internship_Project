@@ -1,13 +1,13 @@
-// Path: /Project-Manager/Client/my-app/src/components/RepoTable.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaLock, FaGlobe } from 'react-icons/fa'; // Importing the icons
+import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
 
 const RepoTable = () => {
   const [repos, setRepos] = useState([]);
   const [error, setError] = useState('');
+  const history = useHistory(); // Initialize useHistory hook
 
   useEffect(() => {
     fetchRepos();
@@ -44,6 +44,10 @@ const RepoTable = () => {
     } catch (err) {
       console.error('Error logging out:', err);
     }
+  };
+
+  const handleCommit = (owner, repoName) => {
+    history.push(`/commit?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repoName)}`); // Navigate to /commit with owner and repoName as query parameters
   };
 
   return (
@@ -87,10 +91,16 @@ const RepoTable = () => {
                 </td>
                 <td>
                   <button
-                    className="btn btn-sm btn-primary"
+                    className="btn btn-sm btn-primary mr-2"
                     onClick={() => handleViewRepo(repo.html_url)}
                   >
                     View
+                  </button>
+                  <button
+                    className="btn btn-sm btn-success"
+                    onClick={() => handleCommit(repo.owner.login, repo.name)}
+                  >
+                    Commit
                   </button>
                 </td>
               </tr>

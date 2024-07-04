@@ -1,17 +1,18 @@
 // Path: /Project-Manager/Client/my-app/src/App.js
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
-import LoginPage from './Components/LoginPage';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import RepoTable from './Components/RepoTable';
+import LoginPage from './Components/LoginPage';
+import CommitForm from './Components/CommitForm'; // Importing the new component
 
 const App = () => {
   return (
     <Router>
       <Switch>
-        <Route exact path="/" component={LoginPage} />
+        <Route path="/" exact component={LoginPage} />
         <Route path="/repos" component={RepoTable} />
-        <Redirect to="/" />
+        <Route path="/commit" component={CommitForm} /> {/* Adding new route */}
       </Switch>
     </Router>
   );

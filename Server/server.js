@@ -1,16 +1,15 @@
-// Path: /Project-Manager/server.js
-
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const fetchRepos = require('./fetchRepos'); // Adjust the path based on your file structure
+
 
 const app = express();
 const port = 3002;
 
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(cookieParser());
+app.use(express.json());
 
 const clientID = 'Ov23liQk5Xn3d1IFi9ik'; // Replace with your actual client ID
 const clientSecret = 'fbe8c391228cc099adeaccc3afd1c248cd64638b'; // Replace with your actual client secret
@@ -67,17 +66,44 @@ app.get('/repos', async (req, res) => {
   }
 });
 
-app.get('/repositories/:username', async (req, res) => {
-  const username = req.params.username;
+app.post('/commit', async (req, res) => {
+  const token = req.cookies.github_token;
+  if (!token) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  const { owner, repo, path, message, content } = req.body;
+
   try {
-    const repositories = await fetchRepos(username);
-    res.json(repositories);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch repositories' });
+    const getShaResponse = await axios.get(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const sha = getShaResponse.data.sha;
+
+    const response = await axios.put(
+      `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
+      {
+        message: message,
+        content: Buffer.from(content).toString('base64'),
+        sha: sha
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    res.json(response.data);
+  } catch (err) {
+    console.error('Error creating commit:', err.response ? err.response.data : err);
+    res.status(500).send('Failed to create commit');
   }
 });
 
-// Logout route to clear the session cookies
 app.get('/logout', (req, res) => {
   res.clearCookie('github_token');
   res.json({ message: 'Logged out successfully' });
