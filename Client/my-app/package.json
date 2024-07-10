@@ -16,6 +16,8 @@
     "bootstrap": "^5.3.3",
     "browserify-zlib": "^0.2.0",
     "cors": "^2.8.5",
+    "d3": "^7.9.0",
+    "d33": "npm:d3@^3.5.17",
     "express": "^4.19.2",
     "https-browserify": "^1.0.0",
     "react": "^18.3.1",

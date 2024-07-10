@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FaLock, FaGlobe } from 'react-icons/fa'; // Importing the icons
-import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
+import { FaLock, FaGlobe } from 'react-icons/fa';
+import { useHistory } from 'react-router-dom';
 
 const RepoTable = () => {
   const [repos, setRepos] = useState([]);
+  const [filteredRepos, setFilteredRepos] = useState([]); // State to hold filtered repositories
   const [error, setError] = useState('');
-  const history = useHistory(); // Initialize useHistory hook
+  const [searchTerm, setSearchTerm] = useState(''); // State to hold search term
+  const history = useHistory();
 
   useEffect(() => {
     fetchRepos();
@@ -19,20 +21,31 @@ const RepoTable = () => {
 
       if (response.status === 200) {
         setRepos(response.data);
+        setFilteredRepos(response.data); // Initialize filteredRepos with all repositories
         setError('');
       } else {
         setError('Failed to fetch repositories');
         setRepos([]);
+        setFilteredRepos([]);
       }
     } catch (err) {
       console.error('Error fetching repositories:', err);
       setError('Failed to fetch repositories');
       setRepos([]);
+      setFilteredRepos([]);
     }
   };
 
   const handleViewRepo = (url) => {
     window.open(url, '_blank');
+  };
+
+  const handleCommit = (owner, repoName) => {
+    history.push(`/commit?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repoName)}`);
+  };
+
+  const handleViewBranches = (owner, repo) => {
+    history.push(`/branches/${owner}/${repo}`);
   };
 
   const handleLogout = async () => {
@@ -46,8 +59,15 @@ const RepoTable = () => {
     }
   };
 
-  const handleCommit = (owner, repoName) => {
-    history.push(`/commit?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repoName)}`); // Navigate to /commit with owner and repoName as query parameters
+  // Function to handle search input change
+  const handleSearchChange = (e) => {
+    const searchTerm = e.target.value;
+    setSearchTerm(searchTerm);
+    // Filter repositories based on search term
+    const filtered = repos.filter(repo =>
+      repo.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredRepos(filtered);
   };
 
   return (
@@ -57,6 +77,20 @@ const RepoTable = () => {
         <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
       </div>
       {error && <p className="text-danger">{error}</p>}
+      <div className="input-group mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by repository name"
+          aria-label="Search"
+          aria-describedby="basic-addon2"
+          value={searchTerm}
+          onChange={handleSearchChange}
+        />
+        <div className="input-group-append">
+          <button className="btn btn-outline-secondary" type="button">Search</button>
+        </div>
+      </div>
       <div className="table-responsive">
         <table className="table table-bordered table-hover">
           <thead className="thead-dark">
@@ -71,7 +105,7 @@ const RepoTable = () => {
             </tr>
           </thead>
           <tbody>
-            {repos.map((repo) => (
+            {filteredRepos.map((repo) => (
               <tr key={repo.id}>
                 <td>{repo.name}</td>
                 <td>{repo.description}</td>
@@ -91,7 +125,7 @@ const RepoTable = () => {
                 </td>
                 <td>
                   <button
-                    className="btn btn-sm btn-primary mr-2"
+                    className="btn btn-sm btn-primary"
                     onClick={() => handleViewRepo(repo.html_url)}
                   >
                     View
@@ -101,6 +135,12 @@ const RepoTable = () => {
                     onClick={() => handleCommit(repo.owner.login, repo.name)}
                   >
                     Commit
+                  </button>
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    onClick={() => handleViewBranches(repo.owner.login, repo.name)}
+                  >
+                    View Branches
                   </button>
                 </td>
               </tr>
