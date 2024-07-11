@@ -6,6 +6,7 @@ import RepoTable from './Components/RepoTable';
 import LoginPage from './Components/LoginPage';
 import CommitForm from './Components/CommitForm';
 import BranchVisualization from'./Components/BranchVisualization' // Importing the new component
+import CommitHistory from './Components/CommitHistory';
 
 const App = () => {
   return (
@@ -15,6 +16,8 @@ const App = () => {
         <Route path="/repos" component={RepoTable} />
         <Route path="/commit" component={CommitForm} /> {/* Adding new route */}
         <Route path="/branches/:owner/:repo" component={BranchVisualization} />
+        <Route path="/commit-history/:repoOwner/:repoName" component={CommitHistory}/>
+          
 
       </Switch>
     </Router>

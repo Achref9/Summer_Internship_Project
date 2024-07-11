@@ -1,0 +1,36 @@
+.container {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  background-color: BLACK;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.svg-container {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.info-section {
+  background-color: #e9ecef;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.info-section h5 {
+  font-weight: bold;
+}
+
+.info-section p {
+  margin: 0;
+}

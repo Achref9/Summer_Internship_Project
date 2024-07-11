@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import * as d3 from 'd3';
 import { useParams, Link } from 'react-router-dom';
+import './BranchVisualization.css'; // Import the CSS file
+import logo from '../assets/Git-Icon-White.png'; // Adjust the path as necessary
+
 
 const BranchVisualization = () => {
   const { owner, repo } = useParams();
@@ -31,90 +34,79 @@ const BranchVisualization = () => {
     fetchBranches();
   }, [owner, repo]);
 
+
+
+  
   useEffect(() => {
     if (branches.length > 0) {
       const svg = d3.select(d3Container.current);
       svg.selectAll('*').remove();
 
-      const width = 800;
-      const height = 400;
-      const mainBranch = branches.find(branch => branch.name === 'main' || branch.name === 'master');
+      const width = 1200;
+      const height = 500;
 
-      // Calculate positions
-      const mainX = width / 2;
-      const mainY = height / 2;
-      const branchY = mainY + 100; // Vertical spacing for other branches
+      // Convert branches to hierarchical data
+      const root = d3.hierarchy({
+        name: 'main',
+        children: branches.filter(branch => branch.name !== 'main' && branch.name !== 'master').map(branch => ({ name: branch.name }))
+      });
 
-      const mainBranchNode = { id: mainBranch.name, x: mainX, y: mainY };
-      const otherBranches = branches.filter(branch => branch.name !== 'main' && branch.name !== 'master');
-      const branchNodes = otherBranches.map((branch, index) => ({
-        id: branch.name,
-        x: mainX + (index - Math.floor(otherBranches.length / 2)) * 100,
-        y: branchY
-      }));
+      // Create a tree layout
+      const treeLayout = d3.tree().size([width, height - 200]);
+      const treeData = treeLayout(root);
 
-      const allNodes = [mainBranchNode, ...branchNodes];
-      const links = branchNodes.map(branch => ({ source: mainBranchNode, target: branch }));
-
-      const simulation = d3.forceSimulation(allNodes)
-        .force('link', d3.forceLink(links).id(d => d.id))
-        .force('charge', d3.forceManyBody().strength(-200))
-        .force('center', d3.forceCenter(width / 2, height / 2));
-
-      const link = svg.selectAll('line')
-        .data(links)
+      // Draw links
+      svg.selectAll('line')
+        .data(treeData.links())
         .enter()
         .append('line')
         .attr('stroke', 'black')
-        .attr('stroke-width', 1);
+        .attr('stroke-width', 3)
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y + 100)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y + 100);
 
-      const node = svg.selectAll('circle')
-        .data(allNodes)
+      // Draw nodes
+      svg.selectAll('circle')
+        .data(treeData.descendants())
         .enter()
         .append('circle')
-        .attr('r', d => d.id === mainBranchNode.id ? 15 : 8)
-        .attr('fill', d => d.id === mainBranchNode.id ? 'orange' : 'steelblue')
+        .attr('r', 20)
+        .attr('fill', d => (d.depth === 0 ? 'orange' : 'steelblue'))
+        .attr('cx', d => d.x)
+        .attr('cy', d => d.y + 100)
         .attr('stroke', 'black')
         .attr('stroke-width', 1.5);
 
-      const label = svg.selectAll('text')
-        .data(allNodes)
+      // Draw labels
+      svg.selectAll('text')
+        .data(treeData.descendants())
         .enter()
         .append('text')
-        .text(d => capitalizeFirstLetter(d.id)) // Capitalize first letter
-        .attr('font-size', 12)
-        .attr('dy', '.35em')
+        .text(d => d.data.name)
+        .attr('font-size', 16)
+        .attr('x', d => d.x)
+        .attr('y', d => d.y + 75) // Adjust this value to move the labels up
         .attr('text-anchor', 'middle')
-        .attr('font-weight', d => d.id === mainBranchNode.id ? 'bold' : 'normal')
-        .attr('pointer-events', 'none'); // Ensure labels do not interfere with mouse events
-
-      simulation.on('tick', () => {
-        link.attr('x1', d => d.source.x)
-          .attr('y1', d => d.source.y)
-          .attr('x2', d => d.target.x)
-          .attr('y2', d => d.target.y);
-
-        node.attr('cx', d => d.x)
-          .attr('cy', d => d.y);
-
-        label.attr('x', d => d.x)
-          .attr('y', d => d.y - (d.id === mainBranchNode.id ? 20 : 12)); // Adjust label position based on circle radius
-      });
+        .attr('dy', '-1em') // Adjust this value to move the labels up
+        .attr('font-weight', 'bold');
     }
   }, [branches]);
 
-  const capitalizeFirstLetter = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1); // Function to capitalize first letter
-  };
-
   return (
     <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>Branches of {owner}/{repo}</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3 header">
+      <h2>
+  <img src={logo} alt="GitHub Logo" style={{ width: '40px', marginRight: '10px' }} />
+  Branches of {owner}/{repo}
+</h2>
         <Link to="/repos" className="btn btn-primary">Back to Repos</Link>
       </div>
       {error && <p className="text-danger">{error}</p>}
-      <svg ref={d3Container} width="800" height="400"></svg>
+      <div className="svg-container">
+        <svg ref={d3Container} width="1200" height="800"></svg>
+      </div>
     </div>
   );
 };

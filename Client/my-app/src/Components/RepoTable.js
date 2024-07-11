@@ -3,12 +3,18 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaLock, FaGlobe } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
+import ReactPaginate from 'react-paginate';
+import './RepoTable.css'; // Import the CSS file for custom styling
+import logo from '../assets/logogit.png'; // Adjust the path as necessary
+
 
 const RepoTable = () => {
   const [repos, setRepos] = useState([]);
-  const [filteredRepos, setFilteredRepos] = useState([]); // State to hold filtered repositories
+  const [filteredRepos, setFilteredRepos] = useState([]);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState(''); // State to hold search term
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(0); // State to handle the current page
+  const reposPerPage = 5; // Number of repos per page
   const history = useHistory();
 
   useEffect(() => {
@@ -21,7 +27,7 @@ const RepoTable = () => {
 
       if (response.status === 200) {
         setRepos(response.data);
-        setFilteredRepos(response.data); // Initialize filteredRepos with all repositories
+        setFilteredRepos(response.data);
         setError('');
       } else {
         setError('Failed to fetch repositories');
@@ -52,28 +58,38 @@ const RepoTable = () => {
     try {
       const response = await axios.get('http://localhost:3002/logout', { withCredentials: true });
       if (response.status === 200) {
-        window.location.href = 'http://localhost:3000'; // Redirect to login page
+        window.location.href = 'http://localhost:3000';
       }
     } catch (err) {
       console.error('Error logging out:', err);
     }
   };
 
-  // Function to handle search input change
   const handleSearchChange = (e) => {
     const searchTerm = e.target.value;
     setSearchTerm(searchTerm);
-    // Filter repositories based on search term
     const filtered = repos.filter(repo =>
       repo.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredRepos(filtered);
+    setCurrentPage(0); // Reset to the first page on new search
+  };
+
+  // Calculate repositories for the current page
+  const offset = currentPage * reposPerPage;
+  const currentRepos = filteredRepos.slice(offset, offset + reposPerPage);
+
+  const handlePageClick = ({ selected }) => {
+    setCurrentPage(selected);
   };
 
   return (
     <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>GitHub Repositories</h2>
+      <div className="d-flex justify-content-between align-items-center mb-4 header">
+      <h2>
+  <img src={logo} alt="GitHub Logo" style={{ width: '38px', marginRight: '10px' }} />
+  GitHub Repositories
+</h2>
         <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
       </div>
       {error && <p className="text-danger">{error}</p>}
@@ -105,7 +121,7 @@ const RepoTable = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredRepos.map((repo) => (
+            {currentRepos.map((repo) => (
               <tr key={repo.id}>
                 <td>{repo.name}</td>
                 <td>{repo.description}</td>
@@ -148,6 +164,19 @@ const RepoTable = () => {
           </tbody>
         </table>
       </div>
+      <ReactPaginate
+        previousLabel={'Previous'}
+        nextLabel={'Next'}
+        breakLabel={'...'}
+        breakClassName={'break-me'}
+        pageCount={Math.ceil(filteredRepos.length / reposPerPage)}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={5}
+        onPageChange={handlePageClick}
+        containerClassName={'pagination'}
+        subContainerClassName={'pages pagination'}
+        activeClassName={'active'}
+      />
     </div>
   );
 };

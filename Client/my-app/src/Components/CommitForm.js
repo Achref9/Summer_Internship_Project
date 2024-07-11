@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useHistory } from 'react-router-dom'; // Import useHistory from react-router-dom
+import { useHistory } from 'react-router-dom'; // Import Link and useHistory from react-router-dom
 
 const CommitForm = ({ repoName, repoOwner }) => {
   const [message, setMessage] = useState('Add README.md');
@@ -29,6 +29,7 @@ const CommitForm = ({ repoName, repoOwner }) => {
       const response = await axios.post(`http://localhost:3002/commit/${repoOwner}/${repoName}`, data, {
         withCredentials: true
       });
+      
       setCommitResponse(response.data);
       setError(null);
     } catch (err) {
@@ -42,6 +43,10 @@ const CommitForm = ({ repoName, repoOwner }) => {
 
   const handleCancel = () => {
     history.push('/repos'); // Navigate to '/repos' using useHistory
+  };
+
+  const handleViewCommitHistory = () => {
+    history.push(`/commit-history/${repoOwner}/${repoName}`); // Navigate to '/commit-history' with repoOwner and repoName as parameters
   };
 
   return (
@@ -93,6 +98,9 @@ const CommitForm = ({ repoName, repoOwner }) => {
         </button>
         <button type="button" className="btn btn-secondary ml-2" onClick={handleCancel}>
           Cancel
+        </button>
+        <button type="button" className="btn btn-primary ml-2" onClick={handleViewCommitHistory}>
+          View Commit History
         </button>
       </form>
       {error && (
