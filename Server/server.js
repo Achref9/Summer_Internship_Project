@@ -101,6 +101,85 @@ app.get('/branches/:owner/:repo', async (req, res) => {
   }
 });
 
+// Route to create a commit
+app.post('/commit/:repoOwner/:repoName', async (req, res) => {
+  const { repoOwner, repoName } = req.params;
+  const { message, branch } = req.body;
+  const token = req.cookies.github_token;
+
+  try {
+    // Get the reference to the branch
+    const { data: refData } = await axios.get(`https://api.github.com/repos/${repoOwner}/${repoName}/git/ref/heads/${branch}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const shaLatestCommit = refData.object.sha;
+
+    // Get the tree SHA
+    const { data: commitData } = await axios.get(`https://api.github.com/repos/${repoOwner}/${repoName}/git/commits/${shaLatestCommit}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    const treeSha = commitData.tree.sha;
+
+    // Create a new commit
+    const { data: newCommitData } = await axios.post(`https://api.github.com/repos/${repoOwner}/${repoName}/git/commits`, {
+      message: message,
+      parents: [shaLatestCommit],
+      tree: treeSha
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    // Update the reference to point to the new commit
+    await axios.patch(`https://api.github.com/repos/${repoOwner}/${repoName}/git/refs/heads/${branch}`, {
+      sha: newCommitData.sha
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    res.status(201).json(newCommitData);
+  } catch (error) {
+    console.error('GitHub API error:', error.response ? error.response.data : error.message);
+    res.status(500).json({ message: 'Failed to commit', error: error.message });
+  }
+});
+
+app.get('/commits/:owner/:repo', async (req, res) => {
+  const { owner, repo } = req.params;
+  const githubToken = req.cookies.github_token;
+
+  try {
+    // Fetch commit history using GitHub API
+    const response = await axios.get(`https://api.github.com/repos/${owner}/${repo}/commits`, {
+      headers: {
+        Authorization: `Bearer ${githubToken}`
+      }
+    });
+
+    // Extract relevant data from GitHub response
+    const commits = response.data.map(commit => ({
+      sha: commit.sha,
+      author: commit.commit.author.name,
+      date: commit.commit.author.date,
+      message: commit.commit.message
+    }));
+
+    res.json(commits); // Send JSON response with commit data
+  } catch (err) {
+    console.error('Error fetching commits:', err.response ? err.response.data : err.message);
+    res.status(err.response ? err.response.status : 500).json({ message: 'Failed to fetch commits' });
+  }
+});
+
 // Logout route to clear cookies
 app.get('/logout', (req, res) => {
   res.clearCookie('github_token');

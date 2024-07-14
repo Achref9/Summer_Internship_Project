@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useHistory } from 'react-router-dom'; // Import Link and useHistory from react-router-dom
+import { useHistory, useLocation } from 'react-router-dom';
 
-const CommitForm = ({ repoName, repoOwner }) => {
-  const [message, setMessage] = useState('Add README.md');
-  const [content, setContent] = useState('This is the initial content of the file.');
-  const [path, setPath] = useState('README.md');
+const CommitForm = () => {
+  const [message, setMessage] = useState('commit');
   const [branch, setBranch] = useState('main');
   const [loading, setLoading] = useState(false);
   const [commitResponse, setCommitResponse] = useState(null);
   const [error, setError] = useState(null);
   
-  const history = useHistory(); // Initialize useHistory
-  
+  const history = useHistory();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const repoOwner = params.get('owner');
+  const repoName = params.get('repo');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const data = {
       message: message,
-      content: content,
-      path: path,
       branch: branch
     };
 
@@ -32,21 +32,26 @@ const CommitForm = ({ repoName, repoOwner }) => {
       
       setCommitResponse(response.data);
       setError(null);
+      setLoading(false);
+      
+      // Redirect after 3 seconds
+      setTimeout(() => {
+        history.push('/repos');
+      }, 3000);
     } catch (err) {
       console.error('Commit error:', err);
       setCommitResponse(null);
       setError('Failed to commit. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    history.push('/repos'); // Navigate to '/repos' using useHistory
+    history.push('/repos');
   };
 
   const handleViewCommitHistory = () => {
-    history.push(`/commit-history/${repoOwner}/${repoName}`); // Navigate to '/commit-history' with repoOwner and repoName as parameters
+    history.push(`/commit-history/${repoOwner}/${repoName}`);
   };
 
   return (
@@ -61,26 +66,6 @@ const CommitForm = ({ repoName, repoOwner }) => {
             id="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="content">File Content:</label>
-          <textarea
-            className="form-control"
-            id="content"
-            rows="5"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          ></textarea>
-        </div>
-        <div className="form-group">
-          <label htmlFor="path">File Path:</label>
-          <input
-            type="text"
-            className="form-control"
-            id="path"
-            value={path}
-            onChange={(e) => setPath(e.target.value)}
           />
         </div>
         <div className="form-group">

@@ -19,6 +19,7 @@ const BranchVisualization = () => {
 
         if (response.status === 200) {
           setBranches(response.data);
+          
           setError('');
         } else {
           setError('Failed to fetch branches');
