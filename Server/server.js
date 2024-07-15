@@ -180,6 +180,35 @@ app.get('/commits/:owner/:repo', async (req, res) => {
   }
 });
 
+app.post('/repos/:owner/:repo/branches/:branch/rename', async (req, res) => {
+  const { owner, repo, branch } = req.params;
+  const { newName } = req.body;
+  const token = req.cookies.github_token;
+
+  if (!token) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  try {
+    const response = await axios.post(
+      `https://api.github.com/repos/${owner}/${repo}/branches/${branch}/rename`,
+      { new_name: newName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/vnd.github.v3+json'
+        }
+      }
+    );
+
+    res.status(200).json(response.data);
+  } catch (err) {
+    console.error('Error renaming branch:', err.response ? err.response.data : err.message);
+    res.status(err.response ? err.response.status : 500).send('Failed to rename branch');
+  }
+});
+
+
 // Logout route to clear cookies
 app.get('/logout', (req, res) => {
   res.clearCookie('github_token');

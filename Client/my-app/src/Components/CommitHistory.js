@@ -34,7 +34,7 @@ const CommitHistory = () => {
             <tr>
               <th scope="col">SHA</th>
               <th scope="col">Author</th>
-              <th scope="col">Date</th>
+              <th scope="col">Date (UTC Time)</th>
               <th scope="col">Message</th>
             </tr>
           </thead>

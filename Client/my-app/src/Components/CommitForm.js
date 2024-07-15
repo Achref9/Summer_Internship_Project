@@ -84,7 +84,7 @@ const CommitForm = () => {
         <button type="button" className="btn btn-secondary ml-2" onClick={handleCancel}>
           Cancel
         </button>
-        <button type="button" className="btn btn-primary ml-2" onClick={handleViewCommitHistory}>
+        <button type="button" className="btn btn-success ml-2" onClick={handleViewCommitHistory}>
           View Commit History
         </button>
       </form>
