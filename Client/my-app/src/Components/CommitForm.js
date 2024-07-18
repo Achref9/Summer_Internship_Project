@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import ApiService from '../config/ApiService'; // Import ApiService
 import { useHistory, useLocation } from 'react-router-dom';
 
 const CommitForm = () => {
@@ -26,9 +26,8 @@ const CommitForm = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`http://localhost:3002/commit/${repoOwner}/${repoName}`, data, {
-        withCredentials: true
-      });
+      // Use ApiService.commit method instead of axios.post
+      const response = await ApiService.commit(repoOwner, repoName, data);
       
       setCommitResponse(response.data);
       setError(null);

@@ -1,10 +1,10 @@
-// Path: /Project-Manager/Client/my-app/src/components/LoginPage.js
-
 import React from 'react';
+import ApiService from '../config/ApiService';
+import githubLogo from '../assets/majesteye.png'; // Import your image
 
 const LoginPage = () => {
   const handleLogin = () => {
-    window.location.href = 'http://localhost:3002/login';
+    window.location.href = `${ApiService.client.defaults.baseURL}/login`;
   };
 
   return (
@@ -18,6 +18,9 @@ const LoginPage = () => {
               <button className="btn btn-primary btn-lg" onClick={handleLogin}>
                 Login with GitHub
               </button>
+              <div className="mt-3">
+                <img src={githubLogo} alt="GitHub Logo" style={{ width: '300px' }} />
+              </div>
             </div>
           </div>
         </div>

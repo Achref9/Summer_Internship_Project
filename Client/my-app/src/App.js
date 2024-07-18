@@ -5,8 +5,9 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import RepoTable from './Components/RepoTable';
 import LoginPage from './Components/LoginPage';
 import CommitForm from './Components/CommitForm';
-import BranchVisualization from'./Components/BranchVisualization' // Importing the new component
-import CommitHistory from './Components/CommitHistory';
+import BranchVisualization from'./Components/BranchVisualization'; // Importing the new component
+import CommitHistory from './Components/CommitHistory'; // Correct casing
+
 
 const App = () => {
   return (

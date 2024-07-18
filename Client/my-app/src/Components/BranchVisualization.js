@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import * as d3 from 'd3';
 import { useParams, Link } from 'react-router-dom';
 import './BranchVisualization.css';
 import logo from '../assets/Git-Icon-White.png';
+import ApiService from '../config/ApiService'; // Import ApiService
 
 const BranchVisualization = () => {
   const { owner, repo } = useParams();
@@ -16,7 +16,7 @@ const BranchVisualization = () => {
   useEffect(() => {
     const fetchBranches = async () => {
       try {
-        const response = await axios.get(`http://localhost:3002/branches/${owner}/${repo}`, { withCredentials: true });
+        const response = await ApiService.getBranches(owner, repo);
 
         if (response.status === 200) {
           setBranches(response.data);
@@ -35,8 +35,6 @@ const BranchVisualization = () => {
     fetchBranches();
   }, [owner, repo]);
 
-
-  
   const handleRenameBranch = async () => {
     if (!selectedBranch || !newBranchName) {
       setError('Branch name cannot be empty');
@@ -44,9 +42,7 @@ const BranchVisualization = () => {
     }
 
     try {
-      const response = await axios.post(`http://localhost:3002/repos/${owner}/${repo}/branches/${selectedBranch}/rename`, {
-        newName: newBranchName
-      }, { withCredentials: true });
+      const response = await ApiService.renameBranch(owner, repo, selectedBranch, newBranchName);
 
       if (response.status === 200) {
         const updatedBranches = branches.map(branch =>
@@ -140,7 +136,6 @@ const BranchVisualization = () => {
           Branches of {owner}/{repo}
         </h2>
         <Link to="/repos" className="btn btn-primary">Back to Repos</Link>
-        
       </div>
       <Notice />
 

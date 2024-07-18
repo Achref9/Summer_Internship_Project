@@ -1,30 +1,36 @@
-// Path: /Project-Manager/Client/my-app/src/components/CallbackHandler.js
-
 import React, { useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, useLocation } from 'react-router-dom';
+import ApiService from './ApiService';
 
-const CallbackHandler = () => {
-  const history = useHistory();
+const Callback = () => {
+  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const code = params.get('code');
+    const authenticate = async () => {
+      const params = new URLSearchParams(location.search);
+      const code = params.get('code');
 
-    if (code) {
-      axios.post('http://localhost:3002/callback', { code })
-        .then(response => {
-          const { token } = response.data;
-          history.push(`/repos?token=${token}`);
-        })
-        .catch(error => {
-          console.error('Error during callback handling', error);
-        });
-    }
-  }, [history, location.search]);
+      try {
+        const response = await ApiService.callback(code);
+        if (response.status === 200) {
+          navigate('/repos');
+        } else {
+          console.error('Failed to authenticate');
+        }
+      } catch (err) {
+        console.error('Error during authentication:', err);
+      }
+    };
 
-  return <div>Loading...</div>;
+    authenticate();
+  }, [navigate, location.search]);
+
+  return (
+    <div>
+      <h2>Authenticating...</h2>
+    </div>
+  );
 };
 
-export default CallbackHandler;
+export default Callback;

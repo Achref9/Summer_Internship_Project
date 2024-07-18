@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { FaLock, FaGlobe } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
 import ReactPaginate from 'react-paginate';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { FaLock, FaGlobe } from 'react-icons/fa';
+import ApiService from '../config/ApiService';
 import './RepoTable.css'; // Import the CSS file for custom styling
 import logo from '../assets/logogit.png'; // Adjust the path as necessary
-
 
 const RepoTable = () => {
   const [repos, setRepos] = useState([]);
@@ -23,8 +22,7 @@ const RepoTable = () => {
 
   const fetchRepos = async () => {
     try {
-      const response = await axios.get('http://localhost:3002/repos', { withCredentials: true });
-
+      const response = await ApiService.getRepos();
       if (response.status === 200) {
         setRepos(response.data);
         setFilteredRepos(response.data);
@@ -56,7 +54,7 @@ const RepoTable = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get('http://localhost:3002/logout', { withCredentials: true });
+      const response = await ApiService.logout();
       if (response.status === 200) {
         window.location.href = 'http://localhost:3000';
       }
@@ -82,14 +80,13 @@ const RepoTable = () => {
   const handlePageClick = ({ selected }) => {
     setCurrentPage(selected);
   };
-
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4 header">
-      <h2>
-  <img src={logo} alt="GitHub Logo" style={{ width: '38px', marginRight: '10px' }} />
-  GitHub Repositories
-</h2>
+        <h2>
+          <img src={logo} alt="GitHub Logo" style={{ width: '38px', marginRight: '10px' }} />
+          GitHub Repositories
+        </h2>
         <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
       </div>
       {error && <p className="text-danger">{error}</p>}
